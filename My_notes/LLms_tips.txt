@@ -1,0 +1,7 @@
+When you start working with large language models, the biggest shift is learning to think in prompts, not just code. The model reacts to the clarity of your instructions, so the more specific you are about what you want, the better the output. It’s like giving directions to someone who can do almost anything, as long as you tell them exactly how you want it done.
+
+Another thing that really helps is breaking down complex tasks. Instead of asking the model to do everything in one go, guide it step by step. Ask for an outline first. Then ask it to expand each part. You’ll get cleaner, more consistent results, and the model won’t “drift” away from your intention.
+
+Context matters more than people expect. The model only sees what you give it in the conversation, so provide examples, define the style you want, and tell it what to avoid. Think of the model as a powerful assistant that has no memory of the outside world unless you feed it the pieces.
+
+And here’s the thing: you get better outputs when you treat the model like a collaborator. If something looks off, guide it. Reframe the question. Add constraints. Show it what “good” looks like. Small prompt changes often create big improvements. Once you play with it for a bit, you start to see patterns in how it responds.

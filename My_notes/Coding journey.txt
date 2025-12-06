@@ -1,0 +1,5 @@
+My coding journey started with Python basics, and over time I’ve moved into more advanced topics like web development with Django, APIs, and automation scripts.
+
+I’ve worked on projects ranging from a YouTube downloader to API-based data extraction pipelines, where I handled everything from writing the logic to deploying the project online. Along the way, I’ve learned about integrating tools like FFmpeg, managing file workflows, and working with cloud platforms like AWS.
+
+Currently, I’m diving into data engineering, learning to build ETL pipelines with Airflow, Kafka, and Snowflake. Each project I take on helps me strengthen my understanding of coding best practices, debugging, and deploying applications. For me, coding isn’t just about writing scripts—it’s about creating solutions that actually work and can scale.
