@@ -4,21 +4,14 @@ import os
 import google.generativeai as genai
 import numpy as np
 from dotenv import load_dotenv
-import streamlit as st
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
 
-
-import os
-import google.generativeai as genai
-
-api_key = st.secrets["GEMINI_API_KEY"]
-genai.configure(api_key=api_key)
-
-
 if not API_KEY:
     raise ValueError("API Key not found! Check your .env file.")
+
+genai.configure(api_key=API_KEY)
 
 EMBED_MODEL = "models/text-embedding-004"
 LLM_MODEL = "gemini-2.5-flash"
