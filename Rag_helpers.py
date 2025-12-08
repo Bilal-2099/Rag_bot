@@ -13,8 +13,8 @@ api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
 
-if not API_KEY:
-    raise ValueError("API Key not found! Check your .env file.")
+# if not API_KEY:
+#     raise ValueError("API Key not found! Check your .env file.")
 
 EMBED_MODEL = "models/text-embedding-004"
 LLM_MODEL = "gemini-2.5-flash"
