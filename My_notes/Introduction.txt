@@ -1,5 +1,0 @@
-I’m Bilal Raza, a Python developer and an aspiring data engineer. I have a strong interest in building data pipelines and working with tools like AWS, Airflow, Kafka, and Snowflake. I’m currently learning and applying data engineering concepts under the guidance of my mentor, Sir Qasim Hassan, at S.M.I.T. I enjoy designing ETL workflows, automating data processes, and handling large datasets efficiently.
-
-In addition to backend and data work, I have experience with Python projects like YouTube downloaders and API-based data extraction. I focus on taking projects from idea to deployment, making sure they are both functional and scalable. I’m constantly learning new technologies and enjoy exploring ways to solve real-world problems with data.
-
-Outside of coding, I like to explore data visualization in tools like Power BI and bring insights to life from raw data. My goal is to grow as a data professional and contribute to projects that make data accessible and actionable.
