@@ -1,23 +1,25 @@
 import pdfplumber
 import random
 import os
-import google.generativeai as genai
 import numpy as np
 from dotenv import load_dotenv
 import streamlit as st
+from openai import OpenAI
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
 
-# api_key = st.secrets["GEMINI_API_KEY"]
-# genai.configure(api_key=api_key)
 
+client = OpenAI(
+    api_key=API_KEY,
+    base_url="https://openrouter.ai/api/v1"
+)
+
+EMBED_MODEL = "text-embedding-3-small"
+LLM_MODEL = "openai/gpt-4o-mini"
 
 if not API_KEY:
     raise ValueError("API Key not found! Check your .env file.")
-
-EMBED_MODEL = "models/text-embedding-004"
-LLM_MODEL = "gemini-2.5-flash"
 
 def chunk_text(text, chunk_size=1000, overlap=200):
     """Splits long text into smaller overlapping chunks."""
@@ -72,24 +74,21 @@ def load_notes(folder="My_notes"):
             
     return docs
 
-def embed_text(text, task_type="retrieval_query"):
-    """Generates embedding for a string."""
+def embed_text(text):
     try:
-        result = genai.embed_content(
-            model=EMBED_MODEL,  
-            content=text,      
-            task_type=task_type
+        response = client.embeddings.create(
+            model=EMBED_MODEL,
+            input=text
         )
-        return np.array(result['embedding'])
+        return np.array(response.data[0].embedding)
     except Exception as e:
         print(f"Embedding error: {e}")
-        return np.zeros(768) # Return zero vector on failure to prevent crash
+        return np.zeros(1536)
 
 def build_index(docs):
-    """Generates embeddings for all document chunks."""
     print(f"Indexing {len(docs)} text chunks (this may take a moment)...")
     for doc in docs:
-        doc["embedding"] = embed_text(doc["text"], task_type="retrieval_document")
+        doc["embedding"] = embed_text(doc["text"])
     return docs
 
 def cosine_sim(a, b):
@@ -103,7 +102,7 @@ def search_context(query, docs, top_k=3):
     if not docs:
         return []
     
-    query_embed = embed_text(query, task_type="retrieval_query")
+    query_embed = embed_text(query)
     scored = []
 
     for doc in docs:
@@ -119,31 +118,38 @@ def format_history(history):
         text += f"User: {turn['user']}\nAI: {turn['ai']}\n\n"
     return text
 
-def ask_gemini(question, context_docs, chat_history):
+def ask_llm(question, context_docs, chat_history):
+
     context_text = "\n\n---\n\n".join(
-        [f"From {doc['file']} (Part {doc['chunk_id']}):\n{doc['text']}" for doc in context_docs]
+        [f"From {doc['file']} (Part {doc['chunk_id']}):\n{doc['text']}"
+         for doc in context_docs]
     )
 
     history_text = format_history(chat_history)
 
     prompt = f"""
-    You are a helpful assistant. Answer the user's question using the provided context and conversation history.
-    If the answer is not in the context, say "I don't know based on the provided notes."
+You are a helpful assistant. Answer using provided context.
+If answer not present say:
+"I don't know based on the provided notes."
 
-    ---
-    Chat History:
-    {history_text}
-    ---
-    Context:
-    {context_text}
-    ---
-    Question: {question}
+Chat History:
+{history_text}
 
-    Answer:
-    """
-    model = genai.GenerativeModel(LLM_MODEL)
-    response = model.generate_content(prompt)
-    return response.text
+Context:
+{context_text}
+
+Question: {question}
+"""
+
+    response = client.chat.completions.create(
+        model=LLM_MODEL,
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3
+    )
+
+    return response.choices[0].message.content
 
 def generate_question(context_docs):
     context_text = "\n\n---\n\n".join([doc["text"] for doc in context_docs])
@@ -153,9 +159,12 @@ def generate_question(context_docs):
     "{context_text}"
     Do not include the answer.
     """
-    model = genai.GenerativeModel(LLM_MODEL)
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    response = client.chat.completions.create(
+    model=LLM_MODEL,
+    messages=[{"role": "user", "content": prompt}],
+    temperature=0.7
+    )
+    return response.choices[0].message.content.strip()
 
 def check_answer(user_answer, context_docs, question):
     context_text = "\n\n---\n\n".join([doc["text"] for doc in context_docs])
@@ -168,9 +177,11 @@ def check_answer(user_answer, context_docs, question):
     Is the student correct based on the context? 
     If incorrect, briefly explain why using the context.
     """
-    model = genai.GenerativeModel(LLM_MODEL)
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    response = client.chat.completions.create(
+    model=LLM_MODEL,
+    messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content.strip()
 
 def main():
     print("Initializing RAG System...")
@@ -217,7 +228,7 @@ def main():
                 context = search_context(question, docs, top_k=3)
                 
                 print("Thinking...")
-                answer = ask_gemini(question, context, chat_history)
+                answer = ask_llm(question, context, chat_history)
 
                 print(f"\nAI: {answer}")
                 print("-" * 30)

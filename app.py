@@ -36,7 +36,7 @@ if mode == "Ask AI":
         context = rh.search_context(user_query, docs)
 
         with st.spinner("Thinking..."):
-            answer = rh.ask_gemini(user_query, context, st.session_state.chat_history)
+            answer = rh.ask_llm(user_query, context, st.session_state.chat_history)
 
         with st.chat_message("assistant"):
             st.write(answer)
